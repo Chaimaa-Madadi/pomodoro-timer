@@ -1,1 +1,271 @@
 
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pomodoro Timer 🍅</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #ffe0e0, #ffeaf7);
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    body.dark-mode {
+      background: linear-gradient(135deg, #1c1c1c, #2a2a2a);
+      color: #fff;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: background 0.3s;
+    }
+    body.dark-mode .container {
+      background: #2c2c2c;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    h1 {
+      font-size: 28px;
+      color: #ff4d6d;
+      margin-bottom: 10px;
+    }
+    .quote {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #666;
+    }
+    body.dark-mode .quote { color: #ccc; }
+
+    .circle-timer {
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+      position: relative;
+    }
+    .circle-timer svg {
+      transform: rotate(-90deg);
+    }
+    .circle-timer text {
+      fill: #e63946;
+      font-size: 32px;
+      font-weight: bold;
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+    body.dark-mode .circle-timer text {
+      fill: #ffb3c6;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 20px;
+      background: #ff69b4;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .settings, .session-info {
+      text-align: left;
+      margin-top: 20px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    input {
+      width: 60px;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .dark-mode-toggle, .mute-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff69b4;
+      border: none;
+      color: white;
+      padding: 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .mute-toggle {
+      right: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍅 Pomodoro Timer</h1>
+    <div class="quote" id="quote">Stay focused, stay productive.</div>
+
+    <div class="circle-timer">
+      <svg width="200" height="200">
+        <circle cx="100" cy="100" r="90" stroke="#e0e0e0" stroke-width="15" fill="none"/>
+        <circle id="progress-circle" cx="100" cy="100" r="90" stroke="#ff69b4" stroke-width="15" fill="none" stroke-dasharray="565.48" stroke-dashoffset="565.48"/>
+        <text x="100" y="100" id="time-text">25:00</text>
+      </svg>
+    </div>
+
+    <div class="buttons">
+      <button id="start">Start</button>
+      <button id="stop">Stop</button>
+      <button id="reset">Reset</button>
+    </div>
+
+    <div class="settings">
+      <label>Work (min): <input type="number" id="work-duration" value="25" min="1"></label>
+      <label>Break (min): <input type="number" id="break-duration" value="5" min="1"></label>
+    </div>
+
+    <div class="session-info">
+      <p>Pomodoros Completed: <span id="session-count">0</span></p>
+    </div>
+  </div>
+
+  <button class="mute-toggle" id="mute-toggle">🔊</button>
+  <button class="dark-mode-toggle" id="dark-mode-toggle">🌙</button>
+
+  <audio id="tick-sound" src="https://www.soundjay.com/clock/sounds/clock-ticking-1.mp3" loop></audio>
+
+  <script>
+    let time = 25 * 60;
+    let isRunning = false;
+    let isBreak = false;
+    let interval;
+    let sessions = 0;
+    let muted = false;
+
+    const workInput = document.getElementById('work-duration');
+    const breakInput = document.getElementById('break-duration');
+    const timeText = document.getElementById('time-text');
+    const progressCircle = document.getElementById('progress-circle');
+    const sessionCount = document.getElementById('session-count');
+    const darkToggle = document.getElementById('dark-mode-toggle');
+    const muteToggle = document.getElementById('mute-toggle');
+    const tickSound = document.getElementById('tick-sound');
+    const quoteBox = document.getElementById('quote');
+
+    const quotes = [
+      "Stay focused, stay productive.",
+      "Small steps lead to big changes.",
+      "Work hard, then rest well.",
+      "Discipline is choosing between what you want now and what you want most.",
+      "Be stronger than your excuses."
+    ];
+
+    function updateTimeDisplay() {
+      const min = Math.floor(time / 60).toString().padStart(2, '0');
+      const sec = (time % 60).toString().padStart(2, '0');
+      timeText.textContent = `${min}:${sec}`;
+
+      const total = (isBreak ? +breakInput.value : +workInput.value) * 60;
+      const dashoffset = 565.48 * (1 - time / total);
+      progressCircle.style.strokeDashoffset = 565.48 - dashoffset;
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      if (!muted) tickSound.play();
+
+      interval = setInterval(() => {
+        time--;
+        updateTimeDisplay();
+
+        if (time <= 0) {
+          clearInterval(interval);
+          isRunning = false;
+          tickSound.pause();
+          tickSound.currentTime = 0;
+
+          if (!isBreak) sessions++;
+          sessionCount.textContent = sessions;
+
+          isBreak = !isBreak;
+          time = (isBreak ? +breakInput.value : +workInput.value) * 60;
+          showQuote();
+          startTimer();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(interval);
+      isRunning = false;
+      tickSound.pause();
+    }
+
+    function resetTimer() {
+      stopTimer();
+      isBreak = false;
+      time = +workInput.value * 60;
+      updateTimeDisplay();
+    }
+
+    function showQuote() {
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteBox.textContent = q;
+    }
+
+    darkToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      darkToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    });
+
+    muteToggle.addEventListener('click', () => {
+      muted = !muted;
+      muteToggle.textContent = muted ? '🔇' : '🔊';
+      if (muted) tickSound.pause();
+    });
+
+    document.getElementById('start').addEventListener('click', startTimer);
+    document.getElementById('stop').addEventListener('click', stopTimer);
+    document.getElementById('reset').addEventListener('click', resetTimer);
+    workInput.addEventListener('change', resetTimer);
+    breakInput.addEventListener('change', resetTimer);
+
+    // Load theme
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      darkToggle.textContent = '☀️';
+    }
+
+    resetTimer();
+    showQuote();
+  </script>
+</body>
+</html>
