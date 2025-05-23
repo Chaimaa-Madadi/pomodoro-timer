@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pomodoro Timer</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins :wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* General Styles */
     * {
       margin: 0;
       padding: 0;
@@ -100,21 +99,19 @@
     }
 
     .settings,
-    .task-list {
+    .task-section {
       margin-top: 20px;
       text-align: left;
     }
 
-    .settings label,
-    .task-list h2 {
+    .settings label {
       font-size: 14px;
       color: #777;
       display: block;
       margin-bottom: 10px;
     }
 
-    .settings input,
-    .task-list input {
+    .settings input {
       width: 60px;
       padding: 5px;
       margin-left: 10px;
@@ -122,12 +119,34 @@
       border-radius: 5px;
     }
 
-    .task-list ul {
+    .task-section {
+      margin-top: 20px;
+    }
+
+    .task-section input[type="text"] {
+      width: calc(100% - 90px);
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    .task-filters {
+      margin: 10px 0;
+    }
+
+    .task-filters button {
+      font-size: 12px;
+      padding: 5px 10px;
+      margin-right: 5px;
+    }
+
+    ul#tasks {
       list-style-type: none;
       padding: 0;
     }
 
-    .task-list li {
+    ul#tasks li {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -135,10 +154,17 @@
       border-bottom: 1px solid #ddd;
     }
 
-    .task-list li button {
-      background: #ff4d6d;
-      font-size: 12px;
-      padding: 5px 10px;
+    ul#tasks li label {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .completed-task span {
+      text-decoration: line-through;
+      color: #999;
     }
 
     .dark-mode-toggle {
@@ -174,20 +200,30 @@
       <button id="reset">Reset</button>
     </div>
     <div class="settings">
-      <label for="work-duration">Work Duration (min):</label>
-      <input type="number" id="work-duration" value="25" min="1" aria-label="Work duration in minutes" />
-      <label for="break-duration">Break Duration (min):</label>
-      <input type="number" id="break-duration" value="5" min="1" aria-label="Break duration in minutes" />
+      <label for="work-duration">Durée travail (min):</label>
+      <input type="number" id="work-duration" value="25" min="1" aria-label="Durée de travail en minutes" />
+      <label for="break-duration">Durée pause (min):</label>
+      <input type="number" id="break-duration" value="5" min="1" aria-label="Durée de pause en minutes" />
     </div>
-    <div class="task-list">
-      <h2>Tasks</h2>
-      <input type="text" id="task-input" placeholder="Add a task..." aria-label="New task input" />
-      <ul id="tasks" aria-label="Task list"></ul>
+
+    <!-- Task Section -->
+    <div class="task-section">
+      <h2>Mes Tâches</h2>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="task-input" placeholder="Ajouter une tâche..." />
+        <button onclick="clearTasks()">Effacer tout</button>
+      </div>
+      <div class="task-filters">
+        <button onclick="filterTasks('all')">Toutes</button>
+        <button onclick="filterTasks('pending')">À faire</button>
+        <button onclick="filterTasks('completed')">Terminées</button>
+      </div>
+      <ul id="tasks"></ul>
     </div>
   </div>
-  <button class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle dark mode">🌙</button>
+  <button class="dark-mode-toggle" id="dark-mode-toggle">🌙</button>
 
-  <!-- Notification Sound -->
+  <!-- Sound Alert -->
   <audio id="alarm-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3 " preload="auto"></audio>
 
   <script>
@@ -228,7 +264,7 @@
             clearInterval(timerInterval);
             isRunning = false;
             alarmSound.play();
-            alert("Time's up! Take a break.");
+            alert("Temps écoulé ! Prends une pause.");
             time = parseInt(breakDurationInput.value) * 60;
             updateTimer();
           }
@@ -247,45 +283,112 @@
       updateTimer();
     }
 
-    // Load saved tasks
-    window.addEventListener('DOMContentLoaded', () => {
-      const storedTasks = localStorage.getItem('pomodoro_tasks');
-      if (storedTasks) {
-        tasksList.innerHTML = storedTasks;
-      }
-    });
+    // Gestion des tâches
+    window.addEventListener('DOMContentLoaded', loadTasks);
 
-    // Save tasks on change
-    function saveTasks() {
-      localStorage.setItem('pomodoro_tasks', tasksList.innerHTML);
+    function loadTasks(filter = 'all') {
+      tasksList.innerHTML = '';
+      const tasks = JSON.parse(localStorage.getItem('checklist')) || [];
+      tasks.forEach(task => {
+        if (filter === 'all' || (filter === 'pending' && !task.completed) || (filter === 'completed' && task.completed)) {
+          addTaskToDOM(task.text, task.completed);
+        }
+      });
     }
 
-    // Add new task
-    taskInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && taskInput.value.trim() !== '') {
-        const task = document.createElement('li');
-        task.innerHTML = `
-          ${taskInput.value}
-          <button onclick="removeTask(this)">Delete</button>
-        `;
-        tasksList.appendChild(task);
+    function saveChecklist() {
+      const tasks = [];
+      document.querySelectorAll('#tasks li').forEach(li => {
+        const checkbox = li.querySelector('input[type="checkbox"]');
+        tasks.push({
+          text: checkbox.nextSibling.textContent.trim(),
+          completed: checkbox.checked
+        });
+      });
+      localStorage.setItem('checklist', JSON.stringify(tasks));
+    }
+
+    function addTaskToDOM(text, completed = false) {
+      const task = document.createElement('li');
+      task.innerHTML = `
+        <label>
+          <input type="checkbox" ${completed ? 'checked' : ''} />
+          <span class="${completed ? 'completed-task' : ''}">${text}</span>
+        </label>
+        <button onclick="removeTask(this)">Suppr</button>
+      `;
+      const checkbox = task.querySelector('input[type="checkbox"]');
+      checkbox.addEventListener('change', function () {
+        const span = this.nextElementSibling;
+        span.classList.toggle('completed-task', this.checked);
+        saveChecklist();
+      });
+
+      const span = task.querySelector('span');
+      span.addEventListener('dblclick', () => {
+        const currentText = span.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.style.flexGrow = '1';
+        span.replaceWith(input);
+        input.focus();
+
+        input.addEventListener('blur', () => {
+          span.textContent = input.value;
+          input.replaceWith(span);
+          saveChecklist();
+        });
+
+        input.addEventListener('keypress', e => {
+          if (e.key === 'Enter') input.blur();
+        });
+      });
+
+      tasksList.appendChild(task);
+    }
+
+    taskInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter' && taskInput.value.trim()) {
+        addTaskToDOM(taskInput.value);
         taskInput.value = '';
-        saveTasks();
+        saveChecklist();
       }
     });
 
     function removeTask(button) {
       button.parentElement.remove();
-      saveTasks();
+      saveChecklist();
+    }
+
+    function clearTasks() {
+      if (confirm("Voulez-vous vraiment supprimer toutes les tâches ?")) {
+        tasksList.innerHTML = '';
+        saveChecklist();
+      }
+    }
+
+    function filterTasks(type) {
+      loadTasks(type);
     }
 
     // Dark mode toggle
     darkModeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
       darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     });
 
-    // Event Listeners
+    // Load dark mode preference
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+      if (savedDarkMode) {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.textContent = '☀️';
+      }
+    });
+
+    // Events
     startButton.addEventListener('click', startTimer);
     stopButton.addEventListener('click', stopTimer);
     resetButton.addEventListener('click', resetTimer);
