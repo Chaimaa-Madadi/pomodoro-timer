@@ -1,280 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Timer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        /* General Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pomodoro Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins :wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* General Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
 
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: #f5f5f5;
-            transition: background 0.3s, color 0.3s;
-        }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+      color: #333;
+      transition: background 0.3s, color 0.3s;
+    }
 
-        body.dark-mode {
-            background: #1e1e1e;
-            color: #fff;
-        }
+    body.dark-mode {
+      background: #1e1e1e;
+      color: #f5f5f5;
+    }
 
-        .container {
-            text-align: center;
-            background: #fff;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 100%;
-            transition: background 0.3s, box-shadow 0.3s;
-        }
+    .container {
+      text-align: center;
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 90%;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
 
-        body.dark-mode .container {
-            background: #2c2c2c;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
+    body.dark-mode .container {
+      background: #2c2c2c;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
 
-        h1 {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #ff4d6d;
-        }
+    h1 {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #ff4d6d;
+    }
 
-        #timer {
-            font-size: 60px;
-            font-weight: bold;
-            color: #e63946;
-            margin: 20px 0;
-        }
+    #timer {
+      font-size: 60px;
+      font-weight: bold;
+      color: #e63946;
+      margin: 20px 0;
+    }
 
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
 
-        .progress {
-            height: 100%;
-            background: #ff69b4;
-            width: 0%;
-            transition: width 0.5s;
-        }
+    .progress {
+      height: 100%;
+      background: #ff69b4;
+      width: 0%;
+      transition: width 0.5s;
+    }
 
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
 
-        button {
-            font-size: 16px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
-            background: #ff69b4;
-            color: white;
-        }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      background: #ff69b4;
+      color: white;
+    }
 
-        button:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
+    button:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
 
-        .settings {
-            margin-top: 20px;
-            text-align: left;
-        }
+    .settings,
+    .task-list {
+      margin-top: 20px;
+      text-align: left;
+    }
 
-        .settings label {
-            font-size: 14px;
-            color: #555;
-            display: block;
-            margin-bottom: 10px;
-        }
+    .settings label,
+    .task-list h2 {
+      font-size: 14px;
+      color: #777;
+      display: block;
+      margin-bottom: 10px;
+    }
 
-        .settings input {
-            width: 60px;
-            padding: 5px;
-            margin-left: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
+    .settings input,
+    .task-list input {
+      width: 60px;
+      padding: 5px;
+      margin-left: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
 
-        .task-list {
-            margin-top: 20px;
-            text-align: left;
-        }
+    .task-list ul {
+      list-style-type: none;
+      padding: 0;
+    }
 
-        .task-list h2 {
-            font-size: 20px;
-            color: #ff4d6d;
-            margin-bottom: 10px;
-        }
+    .task-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
 
-        .task-list input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
+    .task-list li button {
+      background: #ff4d6d;
+      font-size: 12px;
+      padding: 5px 10px;
+    }
 
-        .task-list ul {
-            list-style-type: none;
-            padding: 0;
-        }
+    .dark-mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff69b4;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-        .task-list ul li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .task-list ul li button {
-            background: #ff4d6d;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .dark-mode-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #ff69b4;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-    </style>
+    @media (max-width: 500px) {
+      #timer {
+        font-size: 40px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🍅 Pomodoro Timer</h1>
-        <div id="timer">25:00</div>
-        <div class="progress-bar">
-            <div class="progress"></div>
-        </div>
-        <div class="buttons">
-            <button id="start">Start</button>
-            <button id="stop">Stop</button>
-            <button id="reset">Reset</button>
-        </div>
-        <div class="settings">
-            <label for="work-duration">Work Duration (min):</label>
-            <input type="number" id="work-duration" value="25" min="1">
-            <label for="break-duration">Break Duration (min):</label>
-            <input type="number" id="break-duration" value="5" min="1">
-        </div>
-        <div class="task-list">
-            <h2>Tasks</h2>
-            <input type="text" id="task-input" placeholder="Add a task...">
-            <ul id="tasks"></ul>
-        </div>
+  <div class="container">
+    <h1>🍅 Pomodoro Timer</h1>
+    <div id="timer">25:00</div>
+    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="progress"></div>
     </div>
-    <button class="dark-mode-toggle" id="dark-mode-toggle">🌙</button>
+    <div class="buttons">
+      <button id="start">Start</button>
+      <button id="stop">Stop</button>
+      <button id="reset">Reset</button>
+    </div>
+    <div class="settings">
+      <label for="work-duration">Work Duration (min):</label>
+      <input type="number" id="work-duration" value="25" min="1" aria-label="Work duration in minutes" />
+      <label for="break-duration">Break Duration (min):</label>
+      <input type="number" id="break-duration" value="5" min="1" aria-label="Break duration in minutes" />
+    </div>
+    <div class="task-list">
+      <h2>Tasks</h2>
+      <input type="text" id="task-input" placeholder="Add a task..." aria-label="New task input" />
+      <ul id="tasks" aria-label="Task list"></ul>
+    </div>
+  </div>
+  <button class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle dark mode">🌙</button>
 
-    <script>
-        // Timer Logic
-        let time = 25 * 60;
-        let timerInterval;
-        let isRunning = false;
-        const timerElement = document.getElementById('timer');
-        const startButton = document.getElementById('start');
-        const stopButton = document.getElementById('stop');
-        const resetButton = document.getElementById('reset');
-        const progressBar = document.querySelector('.progress');
-        const workDurationInput = document.getElementById('work-duration');
-        const breakDurationInput = document.getElementById('break-duration');
-        const taskInput = document.getElementById('task-input');
-        const tasksList = document.getElementById('tasks');
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
+  <!-- Notification Sound -->
+  <audio id="alarm-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3 " preload="auto"></audio>
 
-        function updateTimer() {
-            const minutes = Math.floor(time / 60);
-            const seconds = time % 60;
-            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            const totalTime = parseInt(workDurationInput.value) * 60;
-            const progress = ((totalTime - time) / totalTime) * 100;
-            progressBar.style.width = `${progress}%`;
-        }
+  <script>
+    const timerElement = document.getElementById('timer');
+    const startButton = document.getElementById('start');
+    const stopButton = document.getElementById('stop');
+    const resetButton = document.getElementById('reset');
+    const progressBar = document.querySelector('.progress');
+    const workDurationInput = document.getElementById('work-duration');
+    const breakDurationInput = document.getElementById('break-duration');
+    const taskInput = document.getElementById('task-input');
+    const tasksList = document.getElementById('tasks');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const alarmSound = document.getElementById('alarm-sound');
 
-        function startTimer() {
-            if (!isRunning) {
-                isRunning = true;
-                timerInterval = setInterval(() => {
-                    if (time > 0) {
-                        time--;
-                        updateTimer();
-                    } else {
-                        clearInterval(timerInterval);
-                        isRunning = false;
-                        alert("Time's up! Take a break.");
-                        time = parseInt(breakDurationInput.value) * 60;
-                        updateTimer();
-                    }
-                }, 1000);
-            }
-        }
+    let time = 25 * 60;
+    let timerInterval;
+    let isRunning = false;
 
-        function stopTimer() {
+    function updateTimer() {
+      const minutes = Math.floor(time / 60);
+      const seconds = time % 60;
+      timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      const totalTime = parseInt(workDurationInput.value) * 60;
+      const progress = ((totalTime - time) / totalTime) * 100;
+      progressBar.style.width = `${progress}%`;
+      progressBar.setAttribute('aria-valuenow', progress.toFixed(0));
+    }
+
+    function startTimer() {
+      if (!isRunning && time > 0) {
+        isRunning = true;
+        timerInterval = setInterval(() => {
+          if (time > 0) {
+            time--;
+            updateTimer();
+          } else {
             clearInterval(timerInterval);
             isRunning = false;
-        }
-
-        function resetTimer() {
-            stopTimer();
-            time = parseInt(workDurationInput.value) * 60;
+            alarmSound.play();
+            alert("Time's up! Take a break.");
+            time = parseInt(breakDurationInput.value) * 60;
             updateTimer();
-        }
+          }
+        }, 1000);
+      }
+    }
 
-        // Task List Logic
-        taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && taskInput.value.trim() !== '') {
-                const task = document.createElement('li');
-                task.innerHTML = `
-                    ${taskInput.value}
-                    <button onclick="this.parentElement.remove()">Delete</button>
-                `;
-                tasksList.appendChild(task);
-                taskInput.value = '';
-            }
-        });
+    function stopTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+    }
 
-        // Dark Mode Toggle
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-        });
+    function resetTimer() {
+      stopTimer();
+      time = parseInt(workDurationInput.value) * 60;
+      updateTimer();
+    }
 
-        // Event Listeners
-        startButton.addEventListener('click', startTimer);
-        stopButton.addEventListener('click', stopTimer);
-        resetButton.addEventListener('click', resetTimer);
-        workDurationInput.addEventListener('change', resetTimer);
-        breakDurationInput.addEventListener('change', resetTimer);
-        updateTimer();
-    </script>
+    // Load saved tasks
+    window.addEventListener('DOMContentLoaded', () => {
+      const storedTasks = localStorage.getItem('pomodoro_tasks');
+      if (storedTasks) {
+        tasksList.innerHTML = storedTasks;
+      }
+    });
+
+    // Save tasks on change
+    function saveTasks() {
+      localStorage.setItem('pomodoro_tasks', tasksList.innerHTML);
+    }
+
+    // Add new task
+    taskInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && taskInput.value.trim() !== '') {
+        const task = document.createElement('li');
+        task.innerHTML = `
+          ${taskInput.value}
+          <button onclick="removeTask(this)">Delete</button>
+        `;
+        tasksList.appendChild(task);
+        taskInput.value = '';
+        saveTasks();
+      }
+    });
+
+    function removeTask(button) {
+      button.parentElement.remove();
+      saveTasks();
+    }
+
+    // Dark mode toggle
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    });
+
+    // Event Listeners
+    startButton.addEventListener('click', startTimer);
+    stopButton.addEventListener('click', stopTimer);
+    resetButton.addEventListener('click', resetTimer);
+    workDurationInput.addEventListener('change', resetTimer);
+    breakDurationInput.addEventListener('change', resetTimer);
+
+    updateTimer();
+  </script>
 </body>
 </html>
