@@ -1,12 +1,10 @@
-
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pomodoro Timer 🍅</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Pomodoro Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
     * {
       margin: 0;
@@ -14,63 +12,81 @@
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
+
     body {
-      background: linear-gradient(135deg, #ffe0e0, #ffeaf7);
-      transition: background 0.3s, color 0.3s;
-      min-height: 100vh;
+      background: #f5f5f5;
+      color: #333;
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
       padding: 20px;
+      transition: background 0.3s, color 0.3s;
     }
+
     body.dark-mode {
-      background: linear-gradient(135deg, #1c1c1c, #2a2a2a);
+      background: #1e1e1e;
       color: #fff;
     }
+
     .container {
-      background: white;
+      background: #fff;
       border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       padding: 30px;
-      max-width: 400px;
+      max-width: 500px;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       text-align: center;
       transition: background 0.3s;
     }
+
     body.dark-mode .container {
       background: #2c2c2c;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
+
     h1 {
-      font-size: 28px;
+      font-size: 32px;
       color: #ff4d6d;
-      margin-bottom: 10px;
-    }
-    .quote {
-      font-size: 14px;
       margin-bottom: 20px;
-      color: #666;
     }
-    body.dark-mode .quote { color: #ccc; }
 
     .circle-timer {
+      position: relative;
       width: 200px;
       height: 200px;
       margin: 20px auto;
-      position: relative;
     }
+
     .circle-timer svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .circle-timer circle {
+      fill: none;
+      stroke-width: 10;
       transform: rotate(-90deg);
+      transform-origin: center;
     }
-    .circle-timer text {
-      fill: #e63946;
-      font-size: 32px;
+
+    .circle-timer .bg {
+      stroke: #eee;
+    }
+
+    .circle-timer .progress {
+      stroke: #ff69b4;
+      stroke-dasharray: 565;
+      stroke-dashoffset: 565;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    #timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
       font-weight: bold;
-      dominant-baseline: middle;
-      text-anchor: middle;
-    }
-    body.dark-mode .circle-timer text {
-      fill: #ffb3c6;
     }
 
     .buttons {
@@ -79,193 +95,226 @@
       gap: 10px;
       margin: 20px 0;
     }
+
     button {
-      padding: 10px 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: 600;
       border: none;
       border-radius: 20px;
-      background: #ff69b4;
-      color: white;
-      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s;
+      background: #ff69b4;
+      color: #fff;
+      transition: transform 0.2s, opacity 0.2s;
     }
+
     button:hover {
       transform: scale(1.05);
+      opacity: 0.9;
     }
 
-    .settings, .session-info {
-      text-align: left;
+    .settings {
       margin-top: 20px;
+      text-align: left;
     }
-    label {
-      display: block;
+
+    .settings label {
       font-size: 14px;
-      margin: 5px 0;
+      display: block;
+      margin-bottom: 8px;
     }
-    input {
+
+    .settings input {
       width: 60px;
       padding: 5px;
+      margin-left: 10px;
+      border: 1px solid #ddd;
       border-radius: 5px;
-      border: 1px solid #ccc;
     }
 
-    .dark-mode-toggle, .mute-toggle {
+    .task-list {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .task-list h2 {
+      font-size: 20px;
+      color: #ff4d6d;
+      margin-bottom: 10px;
+    }
+
+    .task-list input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .task-list ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .task-list li {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-list li button {
+      background: #ff4d6d;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .dark-mode-toggle {
       position: fixed;
       top: 20px;
       right: 20px;
       background: #ff69b4;
-      border: none;
       color: white;
-      padding: 10px;
+      border: none;
+      padding: 10px 15px;
       border-radius: 20px;
       cursor: pointer;
-      margin-left: 10px;
-    }
-    .mute-toggle {
-      right: 80px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🍅 Pomodoro Timer</h1>
-    <div class="quote" id="quote">Stay focused, stay productive.</div>
-
     <div class="circle-timer">
-      <svg width="200" height="200">
-        <circle cx="100" cy="100" r="90" stroke="#e0e0e0" stroke-width="15" fill="none"/>
-        <circle id="progress-circle" cx="100" cy="100" r="90" stroke="#ff69b4" stroke-width="15" fill="none" stroke-dasharray="565.48" stroke-dashoffset="565.48"/>
-        <text x="100" y="100" id="time-text">25:00</text>
+      <svg>
+        <circle class="bg" cx="100" cy="100" r="90"></circle>
+        <circle class="progress" cx="100" cy="100" r="90"></circle>
       </svg>
+      <div id="timer-text">25:00</div>
     </div>
-
     <div class="buttons">
       <button id="start">Start</button>
       <button id="stop">Stop</button>
       <button id="reset">Reset</button>
     </div>
-
     <div class="settings">
-      <label>Work (min): <input type="number" id="work-duration" value="25" min="1"></label>
-      <label>Break (min): <input type="number" id="break-duration" value="5" min="1"></label>
+      <label>Work Duration (min): <input type="number" id="work-duration" value="25" min="1" /></label>
+      <label>Break Duration (min): <input type="number" id="break-duration" value="5" min="1" /></label>
     </div>
-
-    <div class="session-info">
-      <p>Pomodoros Completed: <span id="session-count">0</span></p>
+    <div class="task-list">
+      <h2>Tasks</h2>
+      <input type="text" id="task-input" placeholder="Add a task..." />
+      <ul id="tasks"></ul>
     </div>
   </div>
-
-  <button class="mute-toggle" id="mute-toggle">🔊</button>
   <button class="dark-mode-toggle" id="dark-mode-toggle">🌙</button>
-
-  <audio id="tick-sound" src="https://www.soundjay.com/clock/sounds/clock-ticking-1.mp3" loop></audio>
 
   <script>
     let time = 25 * 60;
+    let timerInterval;
     let isRunning = false;
-    let isBreak = false;
-    let interval;
-    let sessions = 0;
-    let muted = false;
 
-    const workInput = document.getElementById('work-duration');
-    const breakInput = document.getElementById('break-duration');
-    const timeText = document.getElementById('time-text');
-    const progressCircle = document.getElementById('progress-circle');
-    const sessionCount = document.getElementById('session-count');
-    const darkToggle = document.getElementById('dark-mode-toggle');
-    const muteToggle = document.getElementById('mute-toggle');
-    const tickSound = document.getElementById('tick-sound');
-    const quoteBox = document.getElementById('quote');
+    const timerText = document.getElementById("timer-text");
+    const startBtn = document.getElementById("start");
+    const stopBtn = document.getElementById("stop");
+    const resetBtn = document.getElementById("reset");
+    const workInput = document.getElementById("work-duration");
+    const breakInput = document.getElementById("break-duration");
+    const progressCircle = document.querySelector(".progress");
+    const darkToggle = document.getElementById("dark-mode-toggle");
 
-    const quotes = [
-      "Stay focused, stay productive.",
-      "Small steps lead to big changes.",
-      "Work hard, then rest well.",
-      "Discipline is choosing between what you want now and what you want most.",
-      "Be stronger than your excuses."
-    ];
+    function updateTimerDisplay() {
+      const minutes = Math.floor(time / 60);
+      const seconds = time % 60;
+      timerText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-    function updateTimeDisplay() {
-      const min = Math.floor(time / 60).toString().padStart(2, '0');
-      const sec = (time % 60).toString().padStart(2, '0');
-      timeText.textContent = `${min}:${sec}`;
-
-      const total = (isBreak ? +breakInput.value : +workInput.value) * 60;
-      const dashoffset = 565.48 * (1 - time / total);
-      progressCircle.style.strokeDashoffset = 565.48 - dashoffset;
+      const total = parseInt(workInput.value) * 60;
+      const percent = ((total - time) / total) * 565;
+      progressCircle.style.strokeDashoffset = 565 - percent;
     }
 
     function startTimer() {
-      if (isRunning) return;
-      isRunning = true;
-      if (!muted) tickSound.play();
-
-      interval = setInterval(() => {
-        time--;
-        updateTimeDisplay();
-
-        if (time <= 0) {
-          clearInterval(interval);
-          isRunning = false;
-          tickSound.pause();
-          tickSound.currentTime = 0;
-
-          if (!isBreak) sessions++;
-          sessionCount.textContent = sessions;
-
-          isBreak = !isBreak;
-          time = (isBreak ? +breakInput.value : +workInput.value) * 60;
-          showQuote();
-          startTimer();
-        }
-      }, 1000);
+      if (!isRunning) {
+        isRunning = true;
+        timerInterval = setInterval(() => {
+          if (time > 0) {
+            time--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            isRunning = false;
+            alert("Time's up! Take a break.");
+            time = parseInt(breakInput.value) * 60;
+            updateTimerDisplay();
+          }
+        }, 1000);
+      }
     }
 
     function stopTimer() {
-      clearInterval(interval);
+      clearInterval(timerInterval);
       isRunning = false;
-      tickSound.pause();
     }
 
     function resetTimer() {
       stopTimer();
-      isBreak = false;
-      time = +workInput.value * 60;
-      updateTimeDisplay();
+      time = parseInt(workInput.value) * 60;
+      updateTimerDisplay();
     }
 
-    function showQuote() {
-      const q = quotes[Math.floor(Math.random() * quotes.length)];
-      quoteBox.textContent = q;
-    }
+    startBtn.addEventListener("click", startTimer);
+    stopBtn.addEventListener("click", stopTimer);
+    resetBtn.addEventListener("click", resetTimer);
+    workInput.addEventListener("change", resetTimer);
+    breakInput.addEventListener("change", resetTimer);
 
-    darkToggle.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      darkToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    updateTimerDisplay();
+
+    // Dark Mode
+    darkToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      darkToggle.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
     });
 
-    muteToggle.addEventListener('click', () => {
-      muted = !muted;
-      muteToggle.textContent = muted ? '🔇' : '🔊';
-      if (muted) tickSound.pause();
-    });
+    // To-do List
+    const taskInput = document.getElementById("task-input");
+    const tasksList = document.getElementById("tasks");
 
-    document.getElementById('start').addEventListener('click', startTimer);
-    document.getElementById('stop').addEventListener('click', stopTimer);
-    document.getElementById('reset').addEventListener('click', resetTimer);
-    workInput.addEventListener('change', resetTimer);
-    breakInput.addEventListener('change', resetTimer);
-
-    // Load theme
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.body.classList.add('dark-mode');
-      darkToggle.textContent = '☀️';
+    function saveTasks() {
+      const tasks = [];
+      document.querySelectorAll("#tasks li").forEach(li => {
+        tasks.push(li.querySelector("span").textContent);
+      });
+      localStorage.setItem("pomodoroTasks", JSON.stringify(tasks));
     }
 
-    resetTimer();
-    showQuote();
+    function loadTasks() {
+      const tasks = JSON.parse(localStorage.getItem("pomodoroTasks")) || [];
+      tasks.forEach(task => addTask(task));
+    }
+
+    function addTask(text) {
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${text}</span> <button onclick="this.parentElement.remove(); saveTasks();">Delete</button>`;
+      tasksList.appendChild(li);
+    }
+
+    taskInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && taskInput.value.trim() !== "") {
+        addTask(taskInput.value.trim());
+        taskInput.value = "";
+        saveTasks();
+      }
+    });
+
+    loadTasks();
   </script>
 </body>
 </html>
